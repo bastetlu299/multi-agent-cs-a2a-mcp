@@ -1,114 +1,258 @@
-# Multi-Agent Customer Service (A2A + MCP)
+# Multi-Agent Customer Service with MCP + A2A (LangGraph demos included)
 
-This project implements the assignment requirements:
-
-- **MCP server** (JSON-RPC over Streamable HTTP) exposing `tools/list` and `tools/call`, testable via **MCP Inspector**.
-- **Agents with A2A interfaces** (Router, Customer Data, Support) implemented with **LangGraph** (plus simple sequential and router demos).
-- **SQLite** demo database with seed script.
-
-> Protocols required by the assignment:
-> - **MCP** for database tools (`get_customer`, `list_customers`, `update_customer`, `create_ticket`, `get_customer_history`)
-> - **A2A** via LangGraph for multi-agent coordination (sequential and router patterns)
+A complete, reproducible reference implementation of:
+- **MCP JSON-RPC server** exposing database tools via `tools/list` and `tools/call`
+- Three **independent A2A agents** (Router / Data / Support), each with `/card` and `/a2a/call`
+- **End-to-end tests** covering 5 assignment scenarios
+- **LangGraph demos** for sequential and router-based multi-agent patterns
+- MCP Inspector screenshots & instructions
 
 ---
 
-## Repository Structure
+## Repo Layout
 
-├─ mcp_server.py # FastAPI JSON-RPC MCP server (/mcp, /healthz)
-├─ database_setup.py # Creates support.db and seeds demo data
-├─ run_tests.py # Runs the 5 required test scenarios
-├─ router_demo.py # (Optional) Router pattern demo with LangGraph
-├─ sequential_demo.py # (Optional) Sequential pattern demo with LangGraph
-├─ requirements.txt # Python dependencies
+mcp-project/
+├─ mcp_server.py # MCP JSON-RPC server (tools/list, tools/call, /healthz)
+├─ database_setup.py # Creates and seeds SQLite DB (support.db)
+├─ agents/
+│ ├─ router_agent.py # /card, /a2a/call (port 9201)
+│ ├─ data_agent.py # /card, /a2a/call (port 9102) - calls MCP tools
+│ └─ support_agent.py # /card, /a2a/call (port 9103)
+├─ demos/
+│ ├─ sequential_demo.py # LangGraph sequential pattern demo
+│ └─ router_demo.py # LangGraph router pattern demo
+├─ tests/
+│ └─ run_tests.py # Runs 5 assignment scenarios and prints logs/results
+├─ docs/
+│ ├─ inspector-tools-list.png # MCP Inspector screenshot (tools/list)
+│ ├─ inspector-tools-call.png # MCP Inspector screenshot (tools/call)
+│ └─ architecture.png # High-level diagram (optional)
+├─ .env.example # Example env/ports (copy to .env if needed)
+├─ .gitignore
+├─ requirements.txt
+├─ run_all.sh # Start MCP + 3 agents (or start each in separate shells)
 └─ README.md
 
+yaml
+Copy code
 
 ---
 
-## Prerequisites
-- **Python** 3.10+ (3.11/3.12 recommended)
-- **Node.js** 18+ (only for MCP Inspector)
-- macOS / Linux / Windows (WSL) supported
+## Requirements
+
+- **Python 3.10+**
+- macOS / Linux / Windows (WSL recommended on Windows)
+- (Optional) **MCP Inspector** (Node.js required): `npx @modelcontextprotocol/inspector`
 
 ---
 
-## 1) Create & Activate Virtual Environment
+## Quick Start (100% reproducible)
 
-### macOS / Linux
+### 1) Create & activate a virtual env
+
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
-nstall Dependencies
-pip install -U pip
+source .venv/bin/activate    # Windows: .venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-
-3) Initialize the Demo Database
+2) Initialize the database
+bash
+Copy code
 python database_setup.py
+# This creates/overwrites support.db with seed customers + tickets
+3) Start all services (recommended)
+bash
+Copy code
+bash run_all.sh
+It launches:
 
+MCP server on http://127.0.0.1:9010
 
-This creates support.db with sample customers and tickets. Re-run anytime to reset.
+Data agent on http://127.0.0.1:9102
 
-4) Run the MCP Server
-python mcp_server.py
+Support agent on http://127.0.0.1:9103
 
+Router agent on http://127.0.0.1:9201
 
-MCP JSON-RPC endpoint: http://127.0.0.1:9010/mcp
+Prefer separate terminals? Start each with:
 
-Health check: http://127.0.0.1:9010/healthz
-
-Quick checks (new terminal, same venv):
-
+bash
+Copy code
+uvicorn mcp_server:app --host 0.0.0.0 --port 9010
+uvicorn agents.data_agent:app --host 0.0.0.0 --port 9102
+uvicorn agents.support_agent:app --host 0.0.0.0 --port 9103
+uvicorn agents.router_agent:app --host 0.0.0.0 --port 9201
+Sanity Checks
+MCP health
+bash
+Copy code
 curl -s http://127.0.0.1:9010/healthz
-# → {"ok": true}
-
+# {"ok": true}
+MCP tools/list (JSON-RPC)
+bash
+Copy code
 curl -s -X POST http://127.0.0.1:9010/mcp \
   -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq
+  -d '{"jsonrpc":"2.0","id":"x","method":"tools/list"}' | jq .
+You should see tool entries with inputSchema for:
+get_customer, list_customers, update_customer,
+get_customer_history, create_ticket.
 
+MCP tools/call example
+bash
+Copy code
+curl -s -X POST http://127.0.0.1:9010/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "jsonrpc":"2.0",
+        "id":"call1",
+        "method":"tools/call",
+        "params":{
+          "tool":"get_customer",
+          "arguments":{"customer_id":5}
+        }
+      }' | jq .
+A2A Agent Sanity Checks
+Each agent exposes:
 
-If the port is busy, stop the other process or change the port at the bottom of mcp_server.py.
+GET /card → agent “card” (id, name, capabilities)
 
-5) (Optional) Use MCP Inspector
+POST /a2a/call → JSON-RPC-like call:
 
-Start the proxy:
+json
+Copy code
+{ "tool": "<name>", "arguments": { ... } }
+Data Agent
+bash
+Copy code
+curl -s http://127.0.0.1:9102/card | jq .
+curl -s -X POST http://127.0.0.1:9102/a2a/call \
+  -H 'Content-Type: application/json' \
+  -d '{"tool":"get_customer","arguments":{"customer_id":5}}' | jq .
+Support Agent
+bash
+Copy code
+curl -s http://127.0.0.1:9103/card | jq .
+curl -s -X POST http://127.0.0.1:9103/a2a/call \
+  -H 'Content-Type: application/json' \
+  -d '{"tool":"create_ticket","arguments":{"customer_id":1,"issue":"cannot login","priority":"high"}}' | jq .
+Router Agent
+bash
+Copy code
+curl -s http://127.0.0.1:9201/card | jq .
+curl -s -X POST http://127.0.0.1:9201/a2a/call \
+  -H 'Content-Type: application/json' \
+  -d '{"task":"route","text":"create ticket for customer 1: cannot pay",
+       "args":{"customer_id":1,"issue":"cannot pay","priority":"high"}}' | jq .
+MCP Inspector (independent client)
+Keep MCP server running on :9010.
 
+In a new terminal:
+
+bash
+Copy code
 npx @modelcontextprotocol/inspector
+In the Inspector UI:
 
-
-Copy the Session token printed in the terminal.
-
-Open the UI (usually auto-opens at http://localhost:6274). Then:
-
-Transport Type: Streamable HTTP
+Transport: Streamable HTTP
 
 URL: http://127.0.0.1:9010/mcp
 
-Connection Type: Via Proxy
+Click Connect → Initialize
 
-Authentication → Custom Headers
-Add header:
+Click Tools → you should see the tool list
 
-Name: Authorization
+Try tools/call with:
 
-Value: Bearer <paste-session-token-here>
-Toggle the header ON.
+json
+Copy code
+{
+  "tool": "get_customer",
+  "arguments": { "customer_id": 5 }
+}
+Take screenshots and save into docs/:
 
-Click Connect → Tools → List Tools → choose a tool → Run Tool.
+docs/inspector-tools-list.png
 
-This server returns inputSchema for every tool, so Inspector can render the forms.
+docs/inspector-tools-call.png
 
-6) Run the End-to-End Tests
-python run_tests.py
+If the Inspector complains about missing inputSchema, ensure your tools/list response includes inputSchema objects (this repo does).
+
+Run End-to-End Tests (5 scenarios)
+bash
+Copy code
+python tests/run_tests.py
+Expected: prints five blocks (Simple, Coordinated, Complex, Escalation, Multi-Intent) with Route, Logs, and a Final answer.
+Example (abridged):
+
+makefile
+Copy code
+================================================================================
+TEST: Simple Query
+--------------------------------------------------------------------------------
+Query: Get customer information for ID 5
+Scenario: data
+Route: router -> data
+Logs:
+  - Router classified as DATA
+  - Data Agent used MCP tools
+Final answer:
+ { "type": "get_customer", "customer_id": 5, "customer": {...} }
+LangGraph Demos (optional, for the “What You Will Build” part)
+Sequential pattern:
+
+bash
+Copy code
+python demos/sequential_demo.py
+Router pattern:
+
+bash
+Copy code
+python demos/router_demo.py
+Both demos require OPENAI_API_KEY if they call an LLM. You can run them with simple mock tool logic if you prefer not to invoke an external model.
+
+Troubleshooting
+Port already in use
+
+Kill the old process or change the port.
+
+bash
+Copy code
+lsof -i :9010
+kill -9 <PID>
+MCP Inspector “422 Unprocessable Entity”
+
+Your JSON-RPC must include "jsonrpc":"2.0", a string id, and the correct method.
+
+For tools/list, return inputSchema for every tool.
+
+Read timeout / connection refused
+
+Check the order: start MCP first, then Data, Support, then Router.
+
+Confirm /healthz returns {"ok":true}.
+
+DB got messy while testing
+
+Recreate it:
+
+bash
+Copy code
+rm -f support.db
+python database_setup.py
+Infinite loops / long waits
+
+Agents include max-iteration guards and timeouts. If you changed them, revert to defaults.
+
+Environment & Versions
+See requirements.txt. If you change versions, ensure the project still passes:
+
+tools/list shows inputSchema
+
+tools/call works for all tools
+
+/card & /a2a/call work on all agents
+
+tests/run_tests.py prints 5 passing scenarios
 
 
-You should see the five scenarios:
-
-Simple Query (single MCP call)
-
-Coordinated Query (router → data → support)
-
-Complex Query (negotiation; data + support)
-
-Escalation (router → support)
-
-Multi-Intent (update + history)
