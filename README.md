@@ -10,30 +10,28 @@ A complete, reproducible reference implementation of:
 ---
 
 mcp-project/
-├─ mcp_server.py                 # MCP JSON-RPC server (tools/list, tools/call, /healthz)
-├─ database_setup.py             # Creates and seeds SQLite DB (support.db)
-├─ agents/
-│  ├─ router_agent.py            # /card, /a2a/call  (port 9201)
-│  ├─ data_agent.py              # /card, /a2a/call  (port 9102) - calls MCP tools
-│  └─ support_agent.py           # /card, /a2a/call  (port 9103)
-├─ demos/
-│  ├─ sequential_demo.py         # LangGraph sequential pattern demo
-│  └─ router_demo.py             # LangGraph router pattern demo
-├─ tests/
-│  └─ run_tests.py               # Runs 5 assignment scenarios and prints logs/results
-├─ docs/
-│  ├─ inspector-tools-list.png   # MCP Inspector screenshot (tools/list)
-│  ├─ inspector-tools-call.png   # MCP Inspector screenshot (tools/call)
-│  └─ architecture.png           # High-level diagram (optional)
-├─ .env.example                  # Example env/ports (copy to .env if needed)
-├─ .gitignore
-├─ requirements.txt
-├─ run_all.sh                    # Start MCP + 3 agents (or start each in separate shells)
-└─ README.md
+- mcp_server.py                 # MCP JSON-RPC server (tools/list, tools/call, /healthz)
+- database_setup.py             # Creates and seeds SQLite DB (support.db)
+- agents/
+  - router_agent.py             # /card, /a2a/call (port 9201)
+  - data_agent.py               # /card, /a2a/call (port 9102) - calls MCP tools
+  - support_agent.py            # /card, /a2a/call (port 9103)
+- demos/
+  - sequential_demo.py          # LangGraph sequential pattern demo
+  - router_demo.py              # LangGraph router pattern demo
+- tests/
+  - run_tests.py                # Runs 5 assignment scenarios and prints logs/results
+- docs/
+  - inspector-tools-list.png    # MCP Inspector screenshot (tools/list)
+  - inspector-tools-call.png    # MCP Inspector screenshot (tools/call)
+  - architecture.png            # High-level diagram (optional)
+- .env.example                  # Example env/ports (copy to .env if needed)
+- .gitignore
+- requirements.txt
+- run_all.sh                    # Start MCP + 3 agents (or start each in separate shells)
+- README.md
 
 
-yaml
-Copy code
 
 ---
 
