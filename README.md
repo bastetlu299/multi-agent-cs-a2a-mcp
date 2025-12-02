@@ -21,14 +21,10 @@ mcp-project/
   - router_demo.py              # LangGraph router pattern demo
 - tests/
   - run_tests.py                # Runs 5 assignment scenarios and prints logs/results
-- docs/
-  - inspector-tools-list.png    # MCP Inspector screenshot (tools/list)
-  - inspector-tools-call.png    # MCP Inspector screenshot (tools/call)
-  - architecture.png            # High-level diagram (optional)
-- .env.example                  # Example env/ports (copy to .env if needed)
-- .gitignore
+- result/
+
 - requirements.txt
-- run_all.sh                    # Start MCP + 3 agents (or start each in separate shells)
+
 - README.md
 
 
