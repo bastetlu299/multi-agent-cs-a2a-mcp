@@ -11,4 +11,4 @@ surfaced easily missed mistakes; network issues (port conflicts, proxies, timeou
 explicit error codes to make failures observable. Preventing coordination loops and meeting latency targets pushed me to add 
 iteration caps, timeouts, lightweight caching, and selective parallelism. Overall, this was a realistic end-to-end exercise—from
 protocol-level tool design to multi-agent orchestration and black-box validation with MCP Inspector—that I can reuse in production-style
-agent systems. This has been the most grueling and painful assignment I’ve done in this program so far and hope our grading criteria not too hash to kill me.
+agent systems. This has been the most grueling and painful assignment I’ve done in this program so far and hope our grading criteria not too hash.really
