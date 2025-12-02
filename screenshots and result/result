@@ -1,0 +1,191 @@
+.venv) artemislu@Artemis mcp % python run_tests.p
+y
+================================================================================
+TEST: Simple Query
+--------------------------------------------------------------------------------
+Query: Get customer information for ID 5
+
+Scenario: data
+Route: router -> data
+Logs:
+  - Router classified as DATA
+  - Data Agent used MCP tools
+
+Final answer:
+ {
+  "type": "get_customer",
+  "customer_id": 5,
+  "customer": {
+    "customer": {
+      "id": 5,
+      "name": "Charlie Brown",
+      "email": "charlie.brown@email.com",
+      "phone": "+1-555-0105",
+      "status": "active",
+      "created_at": "2025-12-01 19:53:51",
+      "updated_at": "2025-12-01 19:53:51"
+    }
+  }
+}
+
+================================================================================
+TEST: Coordinated Query
+--------------------------------------------------------------------------------
+Query: I'm customer 12345 and need help upgrading my account
+
+Scenario: multi-intent
+Route: router -> data -> support
+Logs:
+  - Router classified as MULTI
+  - Data Agent invoked via MCP
+  - Support Agent generated coordinated response
+
+Final answer:
+ I couldn't find customer 12345 in the records, but here is how you can upgrade:
+
+I understand your issue. For billing/refund, we can initiate a refund and confirm the payment record. If shipping, we open a tracking case; for general issues, we provide step-by-step guidance.
+
+================================================================================
+TEST: Complex Query
+--------------------------------------------------------------------------------
+Query: Show me all active customers who have open tickets
+
+Scenario: multi-intent
+Route: router -> data -> support
+Logs:
+  - Router classified as MULTI
+  - Data Agent invoked via MCP
+  - Support Agent generated coordinated response
+
+Final answer:
+ Here are the active customers who currently have open tickets:
+
+1. **John Doe**
+   - Email: john.doe@example.com
+   - Phone: +1-555-0101
+   - Open Tickets: 5
+     - Issues: Cannot login to account
+
+2. **Jane Smith**
+   - Email: jane.smith@example.com
+   - Phone: +1-555-0102
+   - Open Tickets: 6
+     - Issues: annot login
+
+3. **Alice Williams**
+   - Email: alice.w@techcorp.com
+   - Phone: +1-555-0104
+   - Open Tickets: 5
+     - Issues: Feature request: integration with Slack
+
+4. **Charlie Brown**
+   - Email: charlie.brown@email.com
+   - Phone: +1-555-0105
+   - Open Tickets: 5
+     - Issues: Email notifications not being received
+
+5. **Diana Prince**
+   - Email: diana.prince@company.org
+   - Phone: +1-555-0106
+   - Open Tickets: 5
+     - Issues: Request for additional language support
+
+6. **Edward Norton**
+   - Email: e.norton@business.net
+   - Phone: +1-555-0107
+   - Open Tickets: 5
+     - Issues: Payment processing failing for all transactions
+
+7. **George Miller**
+   - Email: george.m@enterprise.com
+   - Phone: +1-555-0109
+   - Open Tickets: 5
+     - Issues: Export to CSV feature broken
+
+8. **Hannah Lee**
+   - Email: hannah.lee@global.com
+   - Phone: +1-555-0110
+   - Open Tickets: 5
+     - Issues: Suggestion: add keyboard shortcuts
+
+9. **Isaac Newton**
+   - Email: isaac.n@science.edu
+   - Phone: +1-555-0111
+   - Open Tickets: 5
+     - Issues: Feature request: export to PDF
+
+10. **Julia Roberts**
+   - Email: julia.r@movies.com
+   - Phone: +1-555-0112
+   - Open Tickets: 5
+     - Issues: Color scheme suggestion for better contrast
+
+11. **Michael Scott**
+   - Email: michael.scott@paper.com
+   - Phone: +1-555-0115
+   - Open Tickets: 5
+     - Issues: API rate limiting too restrictive
+
+
+================================================================================
+TEST: Escalation
+--------------------------------------------------------------------------------
+Query: I've been charged twice, please refund immediately!
+
+Scenario: support
+Route: router -> support
+Logs:
+  - Router classified as SUPPORT
+
+Final answer:
+ I understand your concern regarding the double charge, and I apologize for any inconvenience this may have caused. To assist you further, please provide the transaction details (date and amounts) so we can expedite the refund process.
+
+================================================================================
+TEST: Multi-Intent
+--------------------------------------------------------------------------------
+Query: I'm customer 3, update my email to new@email.com and show my ticket history
+
+Scenario: multi-intent
+Route: router -> data -> support
+Logs:
+  - Router classified as MULTI
+  - Data Agent invoked via MCP
+  - Support Agent generated coordinated response
+
+Final answer:
+ Your email has been successfully updated to new@email.com.
+
+Here is your ticket history:
+
+1. **Ticket ID:** 116
+   - **Issue:** Documentation outdated for API v2
+   - **Status:** Open
+   - **Priority:** Low
+   - **Created At:** 2025-12-02 06:52:17
+
+2. **Ticket ID:** 91
+   - **Issue:** Documentation outdated for API v2
+   - **Status:** Open
+   - **Priority:** Low
+   - **Created At:** 2025-12-02 03:18:14
+
+3. **Ticket ID:** 66
+   - **Issue:** Documentation outdated for API v2
+   - **Status:** Open
+   - **Priority:** Low
+   - **Created At:** 2025-12-02 02:47:59
+
+4. **Ticket ID:** 41
+   - **Issue:** Documentation outdated for API v2
+   - **Status:** Open
+   - **Priority:** Low
+   - **Created At:** 2025-12-02 02:41:58
+
+5. **Ticket ID:** 16
+   - **Issue:** Documentation outdated for API v2
+   - **Status:** Open
+   - **Priority:** Low
+   - **Created At:** 2025-12-01 19:53:51
+
+================================================================================
+All test scenarios completed.
