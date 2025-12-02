@@ -1,0 +1,13 @@
+mcp
+fastapi
+uvicorn
+google-adk
+litellm
+httpx
+fastapi==0.115.5
+uvicorn==0.32.0
+pydantic==2.11.3
+requests==2.32.3
+typing-extensions==4.12.2
+langgraph==0.2.46
+
