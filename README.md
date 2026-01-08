@@ -18,6 +18,21 @@ This repository is designed to be **recruiter-friendly** and easy to evaluate. I
 - **Readable, runnable** Python services and test suites
 - **Reproducible results** with one-command startup and deterministic fixtures
 
+## Purpose and how it works
+
+This project exists to show **why multi-agent customer support matters** and **how to build it** end-to-end. It serves as a concrete, runnable example of routing customer requests to the right specialist agent, calling tools to fetch or update data, and returning a unified answer that mirrors a real helpdesk workflow.
+
+From a **business** standpoint, it demonstrates faster resolution (better routing and fewer handoffs), consistent answers (shared tools and data), and lower operational cost (automation of routine lookups and ticket creation). From an **AI** standpoint, it shows how a model can plan, choose the right tool, and collaborate across agents with clear responsibilities—without mixing concerns or losing traceability.
+
+At a high level, the system works like this:
+
+1. The **Router agent** receives an incoming task and decides which agent should handle it.
+2. The **Data agent** calls the MCP server’s tools (JSON-RPC) to read or update customer data.
+3. The **Support agent** uses those results to draft a response or create a ticket.
+4. The **MCP server** provides a stable tool API and sits between agents and the database.
+
+The purpose is to demonstrate **orchestration, tool use, and reproducible testing** in a single repo so you can evaluate the architecture quickly, reuse the patterns, or extend the system for real customer service use cases.
+
 ---
 
 ## Project structure
